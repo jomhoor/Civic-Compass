@@ -127,7 +127,7 @@ export function FlashcardReview({
       </div>
 
       {/* Card */}
-      <div className="card p-6 sm:p-8 min-h-[280px] flex flex-col">
+      <div className="card p-6 sm:p-8 min-h-[280px] flex flex-col" style={{ overflow: "visible" }}>
         {/* Article reference tag */}
         {currentCard.articleRef && (
           <span
@@ -175,11 +175,11 @@ export function FlashcardReview({
             </p>
 
             {/* Rating buttons */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2" style={{ position: "relative", zIndex: 10 }}>
               <button
                 onClick={() => handleRating("SEEN")}
                 disabled={saving}
-                className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full"
+                className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full active:scale-95"
                 style={{ background: "rgba(239,68,68,0.15)", color: "var(--error)" }}
               >
                 {t("flashcard_didnt_know", language)}
@@ -187,7 +187,7 @@ export function FlashcardReview({
               <button
                 onClick={() => handleRating("LEARNING")}
                 disabled={saving}
-                className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full"
+                className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full active:scale-95"
                 style={{ background: "rgba(245,158,11,0.15)", color: "var(--warning, #f59e0b)" }}
               >
                 {t("flashcard_almost", language)}
@@ -195,7 +195,7 @@ export function FlashcardReview({
               <button
                 onClick={() => handleRating("MASTERED")}
                 disabled={saving}
-                className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full"
+                className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full active:scale-95"
                 style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)" }}
               >
                 {t("flashcard_knew_it", language)}
