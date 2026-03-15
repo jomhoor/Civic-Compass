@@ -5,10 +5,10 @@ import { Compass3D } from "@/components/compass-3d";
 import { PageNavBar } from "@/components/page-nav-bar";
 import type { CompassChartHandle } from "@/components/political-compass-chart";
 import { PoliticalCompassChart } from "@/components/political-compass-chart";
-import { getPokeStatus, getPublicProfile, sendPoke } from "@/lib/api";
+import { getCompletedBadges, getPokeStatus, getPublicProfile, sendPoke } from "@/lib/api";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
-import { ArrowLeft, Check, Copy, Download, Lock, Share2, Zap } from "lucide-react";
+import { ArrowLeft, Check, Copy, Download, GraduationCap, Lock, Share2, Zap } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -33,6 +33,7 @@ export default function ProfilePage() {
   const [copied, setCopied] = useState(false);
   const [pokeState, setPokeState] = useState<{ hasPoked: boolean; hasBeenPoked: boolean; mutual: boolean; walletAddress?: string } | null>(null);
   const [pokeSending, setPokeSending] = useState(false);
+  const [badges, setBadges] = useState<{ code: string; icon: string; titleFa: string; titleEn: string }[]>([]);
   const [compassView, setCompassView] = useState<"2d" | "3d">("3d");
   const chartRef = useRef<CompassChartHandle>(null);
   const compass3DRef = useRef<Compass3DHandle>(null);
@@ -44,6 +45,11 @@ export default function ProfilePage() {
       try {
         const data = await getPublicProfile(userId);
         setProfile(data);
+        // Load completed badges
+        try {
+          const b = await getCompletedBadges(userId);
+          setBadges(b);
+        } catch { /* no badges */ }
         // Load poke status if logged in and not own profile
         if (currentUser && currentUser.id !== userId) {
           try {
@@ -224,6 +230,37 @@ export default function ProfilePage() {
             />
           )}
         </div>
+
+        {/* Completed flashcard badges */}
+        {badges.length > 0 && (
+          <div className="card p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <GraduationCap size={18} strokeWidth={1.5} style={{ color: "var(--accent-primary)" }} />
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                {t("profile_badges", language)}
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {badges.map((b) => (
+                <div
+                  key={b.code}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
+                  style={{
+                    background: "var(--accent-gradient-soft, rgba(99,102,241,0.1))",
+                    border: "1px solid var(--border-accent, rgba(99,102,241,0.2))",
+                    color: "var(--text-primary)",
+                  }}
+                  title={language === "fa" ? b.titleFa : b.titleEn}
+                >
+                  <span>{b.icon}</span>
+                  <span style={{ direction: language === "fa" ? "rtl" : "ltr" }}>
+                    {language === "fa" ? b.titleFa : b.titleEn}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Poke / Chat action */}
         {currentUser && !isOwnProfile && (

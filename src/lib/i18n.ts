@@ -333,6 +333,8 @@ const en = {
   flashcard_of: "of",
   flashcard_back_to_decks: "Back to decks",
   flashcard_article: "Article",
+  profile_badges: "Mastered Decks",
+  profile_no_badges: "No completed decks yet",
 };
 
 const fa: typeof en = {
@@ -664,6 +666,8 @@ const fa: typeof en = {
   flashcard_of: "از",
   flashcard_back_to_decks: "بازگشت به مجموعه‌ها",
   flashcard_article: "ماده",
+  profile_badges: "مجموعه‌های تکمیل‌شده",
+  profile_no_badges: "هنوز مجموعه‌ای تکمیل نشده",
 };
 
 const dictionaries: Record<Language, typeof en> = { en, fa };

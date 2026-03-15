@@ -336,3 +336,8 @@ export async function completeFlashcardDeck(code: string) {
   const { data } = await api.post(`/flashcards/decks/${code}/complete`);
   return data;
 }
+
+export async function getCompletedBadges(userId: string) {
+  const { data } = await api.get(`/flashcards/badges/${userId}`);
+  return data as { code: string; icon: string; titleFa: string; titleEn: string }[];
+}
