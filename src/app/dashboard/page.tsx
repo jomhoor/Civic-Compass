@@ -991,7 +991,7 @@ function DashboardContent() {
               >
                 <GraduationCap size={28} strokeWidth={1.5} />
                 <div className="flex-1 min-w-0" style={{ direction: language === "fa" ? "rtl" : "ltr" }}>
-                  <p className="font-bold text-sm">{t("learn_banner", language)}</p>
+                  <p className="font-bold text-sm">{t(isGuest ? "learn_banner_guest" : "learn_banner", language)}</p>
                   <p className="text-xs opacity-80">{t("learn_banner_cta", language)} →</p>
                 </div>
               </div>
@@ -2185,10 +2185,20 @@ function DashboardContent() {
                   {t("flashcard_complete_title", language)}
                 </h3>
                 <p className="text-sm mb-4" style={{ color: "var(--text-secondary)", direction: "rtl" }}>
-                  {t("flashcard_complete_msg", language)}
+                  {t(isGuest ? "flashcard_complete_msg_guest" : "flashcard_complete_msg", language)}
                 </p>
 
-                {flashcardRewardResult?.completed && (
+                {isGuest && (
+                  <div
+                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg mb-4 text-sm font-medium"
+                    style={{ background: "rgba(99,102,241,0.15)", color: "var(--accent, #6366f1)" }}
+                  >
+                    <Wallet size={16} />
+                    {t("flashcard_wallet_cta", language)}
+                  </div>
+                )}
+
+                {!isGuest && flashcardRewardResult?.completed && (
                   <div
                     className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg mb-4 text-sm font-medium"
                     style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)" }}
@@ -2198,7 +2208,7 @@ function DashboardContent() {
                   </div>
                 )}
 
-                {flashcardRewardResult?.alreadyAwarded && (
+                {!isGuest && flashcardRewardResult?.alreadyAwarded && (
                   <div
                     className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg mb-4 text-sm"
                     style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}

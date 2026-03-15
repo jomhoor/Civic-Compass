@@ -2,7 +2,7 @@
 
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
-import { Info, Lock, Trophy } from "lucide-react";
+import { Info, Lock, Trophy, Wallet } from "lucide-react";
 import { useState } from "react";
 
 interface FlashcardDeck {
@@ -25,6 +25,7 @@ interface BadgeCardProps {
 
 export function BadgeCard({ deck, onStart }: BadgeCardProps) {
   const language = useAppStore((s) => s.language);
+  const isGuest = useAppStore((s) => s.isGuest);
   const [showInfo, setShowInfo] = useState(false);
 
   const isCompleted = deck.completedCards >= deck.totalCards && deck.totalCards > 0;
@@ -70,8 +71,8 @@ export function BadgeCard({ deck, onStart }: BadgeCardProps) {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
               style={{ background: "var(--accent-gradient)", color: "#111" }}
             >
-              <Trophy size={12} />
-              {t("flashcard_reward_info", language)}
+              {isGuest ? <Wallet size={12} /> : <Trophy size={12} />}
+              {t(isGuest ? "flashcard_reward_info_guest" : "flashcard_reward_info", language)}
             </div>
           </div>
         </div>
@@ -105,6 +106,14 @@ export function BadgeCard({ deck, onStart }: BadgeCardProps) {
             style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)" }}
           >
             ✓ {t("flashcard_reward_claimed", language)}
+          </div>
+        ) : isGuest ? (
+          <div
+            className="flex items-center justify-center gap-1.5 text-xs px-2 py-1 rounded-lg"
+            style={{ background: "rgba(99,102,241,0.1)", color: "var(--text-muted)" }}
+          >
+            <Wallet size={11} />
+            {t("flashcard_reward_requires_wallet", language)}
           </div>
         ) : (
           <div

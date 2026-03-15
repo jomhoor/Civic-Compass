@@ -37,7 +37,6 @@ export function FlashcardReview({
   const language = useAppStore((s) => s.language);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [reviewStartTime, setReviewStartTime] = useState(Date.now());
   const [localMastered, setLocalMastered] = useState<Set<string>>(new Set(masteredCardIds));
   const [saving, setSaving] = useState(false);
 
@@ -47,15 +46,24 @@ export function FlashcardReview({
   const allMastered = remainingCards.length === 0;
 
   useEffect(() => {
-    setReviewStartTime(Date.now());
     setShowAnswer(false);
   }, [currentIndex]);
 
+  // Timer starts when answer is revealed, not when card appears
+  const [canRate, setCanRate] = useState(false);
+  useEffect(() => {
+    if (showAnswer) {
+      setCanRate(false);
+      const timer = setTimeout(() => setCanRate(true), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setCanRate(false);
+    }
+  }, [showAnswer, currentIndex]);
+
   const handleRating = useCallback(
     async (status: string) => {
-      if (!currentCard || saving) return;
-      const elapsed = Date.now() - reviewStartTime;
-      if (elapsed < 3000) return; // anti-cheat: minimum 3 seconds
+      if (!currentCard || saving || !canRate) return;
 
       setSaving(true);
       try {
@@ -80,7 +88,7 @@ export function FlashcardReview({
         setSaving(false);
       }
     },
-    [currentCard, saving, reviewStartTime, onReview, cards, localMastered]
+    [currentCard, saving, canRate, onReview, cards, localMastered]
   );
 
   // Check completion
@@ -177,26 +185,29 @@ export function FlashcardReview({
             {/* Rating buttons */}
             <div className="grid grid-cols-3 gap-2" style={{ position: "relative", zIndex: 10 }}>
               <button
+                type="button"
                 onClick={() => handleRating("SEEN")}
-                disabled={saving}
+                disabled={saving || !canRate}
                 className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full active:scale-95"
-                style={{ background: "rgba(239,68,68,0.15)", color: "var(--error)" }}
+                style={{ background: "rgba(239,68,68,0.15)", color: "var(--error)", opacity: canRate ? 1 : 0.4 }}
               >
                 {t("flashcard_didnt_know", language)}
               </button>
               <button
+                type="button"
                 onClick={() => handleRating("LEARNING")}
-                disabled={saving}
+                disabled={saving || !canRate}
                 className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full active:scale-95"
-                style={{ background: "rgba(245,158,11,0.15)", color: "var(--warning, #f59e0b)" }}
+                style={{ background: "rgba(245,158,11,0.15)", color: "var(--warning, #f59e0b)", opacity: canRate ? 1 : 0.4 }}
               >
                 {t("flashcard_almost", language)}
               </button>
               <button
+                type="button"
                 onClick={() => handleRating("MASTERED")}
-                disabled={saving}
+                disabled={saving || !canRate}
                 className="px-2 py-4 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer w-full active:scale-95"
-                style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)" }}
+                style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)", opacity: canRate ? 1 : 0.4 }}
               >
                 {t("flashcard_knew_it", language)}
               </button>
