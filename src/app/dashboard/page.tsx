@@ -2085,14 +2085,21 @@ function DashboardContent() {
               deckTitleFa={activeDeck.titleFa}
               deckTitleEn={activeDeck.titleEn}
               onReview={async (cardId, status) => {
-                await reviewFlashcard(cardId, status);
+                if (!isGuest && user) {
+                  await reviewFlashcard(cardId, status);
+                }
+                // Guests: progress tracked locally in FlashcardReview component
               }}
               onComplete={async () => {
-                try {
-                  const result = await completeFlashcardDeck(activeDeck.code);
-                  setFlashcardRewardResult(result);
-                  setFlashcardComplete(true);
-                } catch {
+                if (!isGuest && user) {
+                  try {
+                    const result = await completeFlashcardDeck(activeDeck.code);
+                    setFlashcardRewardResult(result);
+                    setFlashcardComplete(true);
+                  } catch {
+                    setFlashcardComplete(true);
+                  }
+                } else {
                   setFlashcardComplete(true);
                 }
               }}
