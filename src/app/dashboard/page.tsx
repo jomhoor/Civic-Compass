@@ -9,12 +9,16 @@ import { QuestionCard } from "@/components/question-card";
 import { QuestionnaireIcon } from "@/components/questionnaire-icon";
 import {
     cancelConnection,
+    completeFlashcardDeck,
     diffSnapshots,
     getChatPublicKey,
     getChatThreads,
     getCompass,
     getConnections,
     getConversation,
+    getFlashcardDeck,
+    getFlashcardDecks,
+    getFlashcardProgress,
     getFrequencyPreference,
     getHistory,
     getIncomingRequests,
@@ -30,6 +34,7 @@ import {
     markPokesSeen,
     resetQuestionnaireResponses,
     respondToConnection,
+    reviewFlashcard,
     saveSnapshot,
     sendConnectionRequest,
     sendEncryptedMessage,
@@ -51,12 +56,14 @@ import {
 import { AXIS_KEYS, axisLabel, t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
 
-import { ArrowDownRight, ArrowLeft, ArrowUpRight, BarChart3, BookOpen, Check, CircleCheckBig, Clock, Download, ExternalLink, Eye, EyeOff, GitCompare, Link, Loader2, Lock, MessageCircle, MessageSquare, Minus, Puzzle, RotateCcw, Scan, Send, Share2, Shield, Swords, UserPlus, Users, Wallet, X, Zap } from "lucide-react";
+import { ArrowDownRight, ArrowLeft, ArrowUpRight, BarChart3, BookOpen, Check, CircleCheckBig, Clock, Download, ExternalLink, Eye, EyeOff, GitCompare, GraduationCap, Link, Loader2, Lock, MessageCircle, MessageSquare, Minus, Puzzle, RotateCcw, Scan, Send, Share2, Shield, Swords, Trophy, UserPlus, Users, Wallet, X, Zap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSignMessage } from "wagmi";
+import { BadgeCard } from "@/components/badge-card";
+import { FlashcardReview } from "@/components/flashcard-review";
 
-type Tab = "compass" | "session" | "history" | "community" | "chat" | "wallet";
+type Tab = "compass" | "session" | "history" | "community" | "chat" | "wallet" | "learn";
 
 interface Snapshot {
   id: string;
@@ -247,6 +254,14 @@ function DashboardContent() {
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // Flashcard / Learn state
+  const [flashcardDecks, setFlashcardDecks] = useState<any[]>([]);
+  const [decksLoaded, setDecksLoaded] = useState(false);
+  const [activeDeck, setActiveDeck] = useState<{ code: string; titleFa: string; titleEn: string; cards: any[] } | null>(null);
+  const [deckProgress, setDeckProgress] = useState<{ mastered: number; total: number; progress: any[]; completed: boolean } | null>(null);
+  const [flashcardComplete, setFlashcardComplete] = useState(false);
+  const [flashcardRewardResult, setFlashcardRewardResult] = useState<any>(null);
+
   useEffect(() => {
     if (!user) {
       router.push("/connect");
@@ -298,7 +313,13 @@ function DashboardContent() {
           setUnseenPokeCount(pokeCountData?.count ?? 0);
           setChatThreads(chatThreadsData ?? []);
           setUnseenMessageCount(unseenMsgData?.count ?? 0);
+
         }
+
+        // Flashcard decks (available for all users, including guests)
+        const decksData = await getFlashcardDecks(isGuest ? undefined : user!.id).catch(() => []);
+        setFlashcardDecks(decksData ?? []);
+        setDecksLoaded(true);
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       }
@@ -679,6 +700,7 @@ function DashboardContent() {
     { id: "compass", label: t("tab_compass", language) },
     { id: "session", label: t("tab_session", language) },
     { id: "history", label: t("tab_history", language) },
+    { id: "learn", label: t("tab_learn", language) },
     { id: "community", label: t("tab_community", language), badge: unseenPokeCount },
     { id: "chat", label: t("tab_chat", language), badge: unseenMessageCount },
     { id: "wallet", label: t("tab_wallet", language) },
@@ -955,6 +977,24 @@ function DashboardContent() {
                   {t("loading_questions", language)}
                 </p>
               )}
+
+              {/* Flashcard discovery banner */}
+              <div
+                onClick={() => setTab("learn")}
+                role="button"
+                tabIndex={0}
+                className="rounded-2xl p-4 flex items-center gap-3 cursor-pointer transition-all hover:scale-[1.02]"
+                style={{
+                  background: "var(--accent-gradient)",
+                  color: "#111",
+                }}
+              >
+                <GraduationCap size={28} strokeWidth={1.5} />
+                <div className="flex-1 min-w-0" style={{ direction: language === "fa" ? "rtl" : "ltr" }}>
+                  <p className="font-bold text-sm">{t("learn_banner", language)}</p>
+                  <p className="text-xs opacity-80">{t("learn_banner_cta", language)} →</p>
+                </div>
+              </div>
             </div>
           ) : !selectedQuestionnaire && sessionQuestions.length === 0 && !sessionDone ? (
             /* Fallback — shouldn't reach here */
@@ -2033,6 +2073,149 @@ function DashboardContent() {
           )}
         </div>
         )
+      )}
+
+      {/* Learn tab */}
+      {tab === "learn" && (
+        <div className="space-y-6">
+          {activeDeck ? (
+            // Flashcard review mode
+            <FlashcardReview
+              cards={activeDeck.cards}
+              deckTitleFa={activeDeck.titleFa}
+              deckTitleEn={activeDeck.titleEn}
+              onReview={async (cardId, status) => {
+                await reviewFlashcard(cardId, status);
+              }}
+              onComplete={async () => {
+                try {
+                  const result = await completeFlashcardDeck(activeDeck.code);
+                  setFlashcardRewardResult(result);
+                  setFlashcardComplete(true);
+                } catch {
+                  setFlashcardComplete(true);
+                }
+              }}
+              onBack={() => {
+                setActiveDeck(null);
+                // Refresh deck list
+                if (user) {
+                  getFlashcardDecks(user.id).then(setFlashcardDecks).catch(() => {});
+                }
+              }}
+              masteredCardIds={new Set(
+                deckProgress?.progress
+                  ?.filter((p: any) => p.status === "MASTERED")
+                  .map((p: any) => p.cardId) ?? []
+              )}
+            />
+          ) : (
+            // Deck grid
+            <>
+              <div style={{ direction: language === "fa" ? "rtl" : "ltr" }}>
+                <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+                  {t("learn_title", language)}
+                </h2>
+                <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                  {t("learn_subtitle", language)}
+                </p>
+              </div>
+
+              {!decksLoaded ? (
+                <div className="card p-8 text-center">
+                  <Loader2 size={24} className="animate-spin mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                    {t("loading", language)}
+                  </p>
+                </div>
+              ) : flashcardDecks.length === 0 ? (
+                <div className="card p-8 text-center">
+                  <GraduationCap size={24} className="mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                    {language === "fa" ? "هنوز مجموعه‌ای موجود نیست" : "No decks available yet"}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {flashcardDecks.map((deck) => (
+                    <BadgeCard
+                      key={deck.id}
+                      deck={deck}
+                      onStart={async (code) => {
+                        try {
+                          const [deckData, progressData] = await Promise.all([
+                            getFlashcardDeck(code),
+                            getFlashcardProgress(code).catch(() => null),
+                          ]);
+                          setActiveDeck(deckData);
+                          setDeckProgress(progressData);
+                          setFlashcardComplete(false);
+                          setFlashcardRewardResult(null);
+                        } catch (err) {
+                          console.error("Failed to load deck:", err);
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Completion modal */}
+          {flashcardComplete && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: "rgba(0,0,0,0.6)" }}
+              onClick={() => setFlashcardComplete(false)}
+            >
+              <div
+                className="card p-6 sm:p-8 max-w-sm w-full text-center shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-5xl mb-4">🏅</div>
+                <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+                  {t("flashcard_complete_title", language)}
+                </h3>
+                <p className="text-sm mb-4" style={{ color: "var(--text-secondary)", direction: "rtl" }}>
+                  {t("flashcard_complete_msg", language)}
+                </p>
+
+                {flashcardRewardResult?.completed && (
+                  <div
+                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg mb-4 text-sm font-medium"
+                    style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)" }}
+                  >
+                    <Trophy size={16} />
+                    {t("flashcard_reward_pending", language)}
+                  </div>
+                )}
+
+                {flashcardRewardResult?.alreadyAwarded && (
+                  <div
+                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg mb-4 text-sm"
+                    style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}
+                  >
+                    ✓ {t("flashcard_reward_claimed", language)}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    setFlashcardComplete(false);
+                    setActiveDeck(null);
+                    if (user) {
+                      getFlashcardDecks(user.id).then(setFlashcardDecks).catch(() => {});
+                    }
+                  }}
+                  className="btn-primary w-full justify-center mt-2"
+                >
+                  {t("flashcard_back_to_decks", language)}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Wallet tab */}

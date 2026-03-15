@@ -118,9 +118,9 @@ function toPoliticalCompass(dims: Record<string, number>) {
   return { economic, social };
 }
 
-/* ── Font loader (Vazirmatn for Persian, fetched once at edge) ── */
-const vazirmatnPromise = fetch(
-  "https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf"
+/* ── Font loader (Parastoo for Persian, fetched once at edge) ── */
+const parastooPromise = fetch(
+  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-arabic-700-normal.woff"
 ).then((res) => res.arrayBuffer());
 
 export default async function OGImage({
@@ -131,9 +131,9 @@ export default async function OGImage({
   const { id: userId } = await params;
 
   // Load Persian font
-  let vazirmatnData: ArrayBuffer | null = null;
+  let parastooData: ArrayBuffer | null = null;
   try {
-    vazirmatnData = await vazirmatnPromise;
+    parastooData = await parastooPromise;
   } catch {
     // Fallback without Persian font
   }
@@ -241,7 +241,7 @@ export default async function OGImage({
           alignItems: "center",
           justifyContent: "center",
           background: "#111111",
-          fontFamily: '"Inter", "Vazirmatn", "Helvetica", sans-serif',
+          fontFamily: '"Parastoo", "Helvetica", sans-serif',
         }}
       >
         {/* Left side — 3D Compass */}
@@ -428,7 +428,7 @@ export default async function OGImage({
               marginBottom: "8px",
               display: "flex",
               direction: titleIsRTL ? "rtl" : "ltr",
-              fontFamily: titleIsRTL ? "Vazirmatn" : "Inter",
+              fontFamily: "Parastoo",
               width: "100%",
             }}
           >
@@ -559,11 +559,11 @@ export default async function OGImage({
     {
       ...size,
       fonts: [
-        ...(vazirmatnData
+        ...(parastooData
           ? [
               {
-                name: "Vazirmatn",
-                data: vazirmatnData,
+                name: "Parastoo",
+                data: parastooData,
                 weight: 700 as const,
                 style: "normal" as const,
               },

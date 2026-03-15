@@ -281,7 +281,7 @@ export const Compass3D = forwardRef<Compass3DHandle, Compass3DProps>(
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const labelSize = Math.max(10, Math.round(S * 0.07));
-    ctx.font = `700 ${labelSize}px "Inter", sans-serif`;
+    ctx.font = `700 ${labelSize}px "Parastoo", sans-serif`;
 
     for (const { i: lIdx, z: lz } of zOrder) {
       const le = axisEnds[lIdx];
@@ -313,7 +313,7 @@ export const Compass3D = forwardRef<Compass3DHandle, Compass3DProps>(
       // Confidence indicator
       if (confCount < 4) {
         const confSize = Math.max(7, Math.round(S * 0.045));
-        ctx.font = `500 ${confSize}px "Inter", sans-serif`;
+        ctx.font = `500 ${confSize}px "Parastoo", sans-serif`;
         ctx.fillStyle =
           hexRGBA("#D97706", labAlpha);
         ctx.fillText(
@@ -321,7 +321,7 @@ export const Compass3D = forwardRef<Compass3DHandle, Compass3DProps>(
           labX,
           labY + (lines.length / 2) * 11 + 8
         );
-        ctx.font = `600 ${labelSize}px "Inter", sans-serif`;
+        ctx.font = `600 ${labelSize}px "Parastoo", sans-serif`;
       }
     }
 

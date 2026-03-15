@@ -5,6 +5,14 @@ export const alt = "Civic Compass — Your Multidimensional Voice";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+/* ── Font loader (Parastoo, fetched once at edge) ── */
+const parastooRegularPromise = fetch(
+  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-latin-400-normal.woff"
+).then((res) => res.arrayBuffer());
+const parastooBoldPromise = fetch(
+  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-latin-700-normal.woff"
+).then((res) => res.arrayBuffer());
+
 const AXES = [
   { key: "Economy", color: "#0EBB90", value: 0.7 },
   { key: "Governance", color: "#8CDAF5", value: 0.55 },
@@ -67,7 +75,17 @@ function hexRGBA(hex: string, a: number) {
   return `rgba(${r},${g},${b},${a})`;
 }
 
-export default function OGImage() {
+export default async function OGImage() {
+  let parastooRegular: ArrayBuffer | null = null;
+  let parastooBold: ArrayBuffer | null = null;
+  try {
+    [parastooRegular, parastooBold] = await Promise.all([
+      parastooRegularPromise,
+      parastooBoldPromise,
+    ]);
+  } catch {
+    // Fallback to system font
+  }
   const cx = 420;
   const cy = 315;
   const S = 200;
@@ -158,7 +176,7 @@ export default function OGImage() {
           display: "flex",
           background:
             "linear-gradient(135deg, #0a0a0f 0%, #121228 50%, #0d1117 100%)",
-          fontFamily: "Inter, system-ui, sans-serif",
+          fontFamily: "Parastoo, system-ui, sans-serif",
           position: "relative",
           overflow: "hidden",
         }}
@@ -380,6 +398,16 @@ export default function OGImage() {
         />
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      fonts: [
+        ...(parastooRegular
+          ? [{ name: "Parastoo", data: parastooRegular, weight: 400 as const, style: "normal" as const }]
+          : []),
+        ...(parastooBold
+          ? [{ name: "Parastoo", data: parastooBold, weight: 700 as const, style: "normal" as const }]
+          : []),
+      ],
+    }
   );
 }

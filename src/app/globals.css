@@ -5,39 +5,36 @@
    Matched to Republic / Rarimo dark theme
    ======================================== */
 
-/* ── Nian font-face (Farsi) — matches Republic ── */
+/* ── Parastoo font-face (all languages) ── */
 @font-face {
-  font-family: 'Nian';
-  src: url('/fonts/Nian Light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Nian';
-  src: url('/fonts/Nian.ttf') format('truetype');
+  font-family: 'Parastoo';
+  src: url('/fonts/parastoo-latin-400-normal.woff2') format('woff2'),
+       url('/fonts/parastoo-arabic-400-normal.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Nian';
-  src: url('/fonts/Nian SemiBold.ttf') format('truetype');
+  font-family: 'Parastoo';
+  src: url('/fonts/parastoo-latin-500-normal.woff2') format('woff2'),
+       url('/fonts/parastoo-arabic-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Parastoo';
+  src: url('/fonts/parastoo-latin-600-normal.woff2') format('woff2'),
+       url('/fonts/parastoo-arabic-600-normal.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Nian';
-  src: url('/fonts/Nian Bold.ttf') format('truetype');
+  font-family: 'Parastoo';
+  src: url('/fonts/parastoo-latin-700-normal.woff2') format('woff2'),
+       url('/fonts/parastoo-arabic-700-normal.woff2') format('woff2');
   font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Nian';
-  src: url('/fonts/Nian-Black.ttf') format('truetype');
-  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -134,12 +131,7 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --font-app: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-/* Farsi: switch to Nian — matches Republic */
-html[lang="fa"] {
-  --font-app: 'Nian', 'Vazirmatn', system-ui, sans-serif;
+  --font-app: 'Parastoo', system-ui, sans-serif;
 }
 
 body {

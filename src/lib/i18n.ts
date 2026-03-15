@@ -301,6 +301,33 @@ const en = {
   // Welcome
   welcome_choose_lang: "Choose your language to get started",
   tap_switch_appearance: "Tap to switch appearance",
+
+  // Flashcards / Learn
+  tab_learn: "Learn",
+  learn_title: "Human Rights",
+  learn_subtitle: "Learn & memorize fundamental rights and freedoms",
+  flashcard_cards: "cards",
+  flashcard_completed: "completed",
+  flashcard_start: "Start Learning",
+  flashcard_continue: "Continue",
+  flashcard_review: "Review Again",
+  flashcard_locked: "Locked",
+  flashcard_reward_info: "Complete to earn ~1 USDC reward",
+  learn_banner: "Learn human rights & earn rewards",
+  learn_banner_cta: "Go to Learn",
+  flashcard_reward_claimed: "Reward sent!",
+  flashcard_show_answer: "Show Answer",
+  flashcard_knew_it: "Knew it",
+  flashcard_almost: "Almost",
+  flashcard_didnt_know: "Didn't know",
+  flashcard_progress: "Progress",
+  flashcard_complete_title: "Congratulations!",
+  flashcard_complete_msg: "You completed this deck and earned a badge!",
+  flashcard_reward_pending: "Your reward is being processed…",
+  flashcard_mastered: "Mastered",
+  flashcard_of: "of",
+  flashcard_back_to_decks: "Back to decks",
+  flashcard_article: "Article",
 };
 
 const fa: typeof en = {
@@ -600,6 +627,33 @@ const fa: typeof en = {
   // Welcome
   welcome_choose_lang: "برای شروع زبان خود را انتخاب کنید",
   tap_switch_appearance: "برای تغییر ظاهر بزنید",
+
+  // Flashcards / Learn
+  tab_learn: "یادگیری",
+  learn_title: "حقوق بشر",
+  learn_subtitle: "یادگیری و حفظ حقوق و آزادی‌های بنیادین",
+  flashcard_cards: "کارت",
+  flashcard_completed: "تکمیل شده",
+  flashcard_start: "شروع یادگیری",
+  flashcard_continue: "ادامه",
+  flashcard_review: "مرور دوباره",
+  flashcard_locked: "قفل",
+  flashcard_reward_info: "با تکمیل، ~۱ USDC پاداش بگیرید",
+  learn_banner: "حقوق بشر را یاد بگیرید و پاداش کسب کنید",
+  learn_banner_cta: "رفتن به یادگیری",
+  flashcard_reward_claimed: "پاداش ارسال شد!",
+  flashcard_show_answer: "نمایش پاسخ",
+  flashcard_knew_it: "بلد بودم",
+  flashcard_almost: "تقریباً",
+  flashcard_didnt_know: "بلد نبودم",
+  flashcard_progress: "پیشرفت",
+  flashcard_complete_title: "تبریک!",
+  flashcard_complete_msg: "این مجموعه را تکمیل کردید و نشان دریافت کردید!",
+  flashcard_reward_pending: "پاداش شما در حال پردازش است…",
+  flashcard_mastered: "تسلط",
+  flashcard_of: "از",
+  flashcard_back_to_decks: "بازگشت به مجموعه‌ها",
+  flashcard_article: "ماده",
 };
 
 const dictionaries: Record<Language, typeof en> = { en, fa };

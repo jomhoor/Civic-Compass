@@ -308,3 +308,31 @@ export async function markChatSeen(otherUserId: string) {
   const { data } = await api.post(`/chat/${otherUserId}/mark-seen`);
   return data;
 }
+
+// --- Flashcards ---
+export async function getFlashcardDecks(userId?: string) {
+  const params: Record<string, string> = {};
+  if (userId) params.userId = userId;
+  const { data } = await api.get("/flashcards/decks", { params });
+  return data;
+}
+
+export async function getFlashcardDeck(code: string) {
+  const { data } = await api.get(`/flashcards/decks/${code}`);
+  return data;
+}
+
+export async function getFlashcardProgress(code: string) {
+  const { data } = await api.get(`/flashcards/decks/${code}/progress`);
+  return data;
+}
+
+export async function reviewFlashcard(cardId: string, status: string) {
+  const { data } = await api.post("/flashcards/review", { cardId, status });
+  return data;
+}
+
+export async function completeFlashcardDeck(code: string) {
+  const { data } = await api.post(`/flashcards/decks/${code}/complete`);
+  return data;
+}
