@@ -10,10 +10,6 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ??
   "http://localhost:3001/api";
 
-const parastooPromise = fetch(
-  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-arabic-700-normal.woff"
-).then((res) => res.arrayBuffer());
-
 export default async function OGImage({
   params,
 }: {
@@ -21,31 +17,31 @@ export default async function OGImage({
 }) {
   const { code } = await params;
 
-  let parastooData: ArrayBuffer | null = null;
-  try {
-    parastooData = await parastooPromise;
-  } catch {
-    // Fallback without Persian font
-  }
-
   let titleFa = "";
   let titleEn = "";
   let cardCount = 0;
-  let description = "";
 
   try {
-    const res = await fetch(`${API_BASE}/flashcards/decks/${encodeURIComponent(code)}`, {
-      next: { revalidate: 600 },
-    });
+    const res = await fetch(`${API_BASE}/flashcards/decks/${encodeURIComponent(code)}`);
     if (res.ok) {
       const data = await res.json();
-      titleFa = data.titleFa ?? "";
-      titleEn = data.titleEn ?? "";
+      titleFa = String(data.titleFa ?? "");
+      titleEn = String(data.titleEn ?? "");
       cardCount = data.cards?.length ?? 0;
-      description = data.description ?? "";
     }
   } catch {
     // Fallback
+  }
+
+  // Load Parastoo font for Persian text
+  let fontData: ArrayBuffer | undefined;
+  try {
+    const fontRes = await fetch(
+      "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-arabic-700-normal.woff"
+    );
+    if (fontRes.ok) fontData = await fontRes.arrayBuffer();
+  } catch {
+    // Fallback without custom font
   }
 
   return new ImageResponse(
@@ -59,7 +55,7 @@ export default async function OGImage({
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%)",
-          fontFamily: parastooData ? "Parastoo, sans-serif" : "sans-serif",
+          fontFamily: fontData ? "Parastoo" : "sans-serif",
           position: "relative",
           overflow: "hidden",
         }}
@@ -111,14 +107,13 @@ export default async function OGImage({
         </div>
 
         {/* Persian title */}
-        {titleFa ? (
+        {titleFa.length > 0 ? (
           <div
             style={{
               fontSize: "48px",
               fontWeight: 700,
               color: "#ffffff",
               textAlign: "center",
-              direction: "rtl",
               marginBottom: "8px",
               display: "flex",
             }}
@@ -128,7 +123,7 @@ export default async function OGImage({
         ) : null}
 
         {/* English title */}
-        {titleEn ? (
+        {titleEn.length > 0 ? (
           <div
             style={{
               fontSize: "28px",
@@ -140,23 +135,6 @@ export default async function OGImage({
             }}
           >
             {titleEn}
-          </div>
-        ) : null}
-
-        {/* Description */}
-        {description ? (
-          <div
-            style={{
-              fontSize: "20px",
-              color: "rgba(255,255,255,0.5)",
-              textAlign: "center",
-              maxWidth: "800px",
-              marginBottom: "24px",
-              direction: "rtl",
-              display: "flex",
-            }}
-          >
-            {description}
           </div>
         ) : null}
 
@@ -174,7 +152,7 @@ export default async function OGImage({
           }}
         >
           <div style={{ fontSize: "18px", color: "#0EBB90", fontWeight: 600, display: "flex" }}>
-            {`${cardCount} cards`}
+            {`${String(cardCount)} cards`}
           </div>
         </div>
 
@@ -203,11 +181,11 @@ export default async function OGImage({
     ),
     {
       ...size,
-      fonts: parastooData
+      fonts: fontData
         ? [
             {
               name: "Parastoo",
-              data: parastooData,
+              data: fontData,
               weight: 700 as const,
               style: "normal" as const,
             },
