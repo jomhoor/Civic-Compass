@@ -116,6 +116,7 @@ export default async function OGImage({
               textAlign: "center",
               marginBottom: "8px",
               display: "flex",
+              direction: "rtl",
             }}
           >
             {titleFa}
