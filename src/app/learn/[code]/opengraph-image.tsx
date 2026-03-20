@@ -106,21 +106,33 @@ export default async function OGImage({
           {"CC"}
         </div>
 
-        {/* Persian title — use Unicode RLE to force RTL since Satori ignores CSS direction */}
+        {/* Persian title — use row-reverse flex to simulate RTL (Satori ignores CSS direction and crashes on Unicode bidi marks) */}
         {titleFa.length > 0 ? (
           <div
             style={{
-              fontSize: "48px",
-              fontWeight: 700,
-              color: "#ffffff",
-              textAlign: "center",
-              marginBottom: "8px",
               display: "flex",
-              width: "100%",
+              flexDirection: "row-reverse",
+              flexWrap: "wrap",
               justifyContent: "center",
+              gap: "12px",
+              marginBottom: "8px",
+              width: "100%",
+              padding: "0 40px",
             }}
           >
-            {`\u202B${titleFa}\u202C`}
+            {titleFa.split(/\s+/).map((word, i) => (
+              <div
+                key={i}
+                style={{
+                  fontSize: "48px",
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  display: "flex",
+                }}
+              >
+                {word}
+              </div>
+            ))}
           </div>
         ) : null}
 
