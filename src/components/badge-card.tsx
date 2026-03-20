@@ -90,9 +90,9 @@ export function BadgeCard({ deck, onStart }: BadgeCardProps) {
         </div>
         <h3
           className="text-sm sm:text-base font-semibold leading-tight"
-          style={{ color: "var(--text-primary)", direction: "rtl" }}
+          style={{ color: "var(--text-primary)", direction: language === "fa" ? "rtl" : "ltr" }}
         >
-          {deck.titleFa}
+          {language === "fa" ? deck.titleFa : deck.titleEn}
         </h3>
       </div>
 

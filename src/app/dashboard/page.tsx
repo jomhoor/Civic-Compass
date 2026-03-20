@@ -162,7 +162,12 @@ function DashboardContent() {
   const user = useAppStore((s) => s.user);
   const language = useAppStore((s) => s.language);
   const isGuest = useAppStore((s) => s.isGuest);
-  const [tab, setTab] = useState<Tab>(isGuest ? "session" : "compass");
+  const [tab, setTab] = useState<Tab>(() => {
+    const param = searchParams.get("tab");
+    const valid: Tab[] = ["compass", "session", "history", "community", "chat", "wallet", "learn"];
+    if (param && valid.includes(param as Tab)) return param as Tab;
+    return isGuest ? "session" : "compass";
+  });
   const [compassView, setCompassView] = useState<"2d" | "3d">("2d");
   const [showUserId, setShowUserId] = useState(false);
   const compassChartRef = useRef<CompassChartHandle>(null);
@@ -423,17 +428,23 @@ function DashboardContent() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  // Handle URL params for deep-linking to chat
+  // Handle URL params for deep-linking — sync tab state with URL on back/forward navigation
   useEffect(() => {
     const urlTab = searchParams.get("tab");
     const urlUser = searchParams.get("user");
-    if (urlTab === "chat") {
-      setTab("chat");
-      if (urlUser && chatReady) {
-        loadConversation(urlUser);
-      }
+    const valid: Tab[] = ["compass", "session", "history", "community", "chat", "wallet", "learn"];
+    if (urlTab && valid.includes(urlTab as Tab)) {
+      setTab(urlTab as Tab);
+    }
+    if (urlTab === "chat" && urlUser && chatReady) {
+      loadConversation(urlUser);
     }
   }, [searchParams, chatReady, loadConversation]);
+
+  const handleTabChange = useCallback((newTab: Tab) => {
+    setTab(newTab);
+    router.push(`/dashboard?tab=${newTab}`, { scroll: false });
+  }, [router]);
 
   // Auto-mark pokes as seen when community tab is active
   useEffect(() => {
@@ -723,7 +734,7 @@ function DashboardContent() {
           <button
             key={tb.id}
             onClick={() => {
-              setTab(tb.id);
+              handleTabChange(tb.id);
             }}
             className="relative shrink-0 flex-1 py-2.5 sm:py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap"
             style={{
@@ -980,7 +991,7 @@ function DashboardContent() {
 
               {/* Flashcard discovery banner */}
               <div
-                onClick={() => setTab("learn")}
+                onClick={() => handleTabChange("learn")}
                 role="button"
                 tabIndex={0}
                 className="rounded-2xl p-4 flex items-center gap-3 cursor-pointer transition-all hover:scale-[1.02]"
@@ -1045,7 +1056,7 @@ function DashboardContent() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
-                  onClick={() => { setTab("compass"); }}
+                  onClick={() => { handleTabChange("compass"); }}
                   className="btn-primary"
                 >
                   {t("view_compass", language)}
@@ -1437,7 +1448,7 @@ function DashboardContent() {
                         {poke.mutual ? (
                           <button
                             onClick={() => {
-                              setTab("chat");
+                              handleTabChange("chat");
                               loadConversation(poke.senderId);
                             }}
                             className="btn-primary text-xs py-1.5 px-4 flex items-center gap-1.5"
@@ -1698,7 +1709,7 @@ function DashboardContent() {
                         {m.connectionStatus === "ACCEPTED" ? (
                           <button
                             onClick={() => {
-                              setTab("chat");
+                              handleTabChange("chat");
                               loadConversation(m.userId);
                             }}
                             className="btn-primary text-sm py-2 px-4 w-full flex items-center justify-center gap-2"
@@ -1860,7 +1871,7 @@ function DashboardContent() {
                     </div>
                     <button
                       onClick={() => {
-                        setTab("chat");
+                        handleTabChange("chat");
                         loadConversation(c.userId);
                       }}
                       className="btn-primary text-xs py-2 px-4 mt-3 w-full flex items-center justify-center gap-2"
