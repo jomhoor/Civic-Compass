@@ -5,7 +5,7 @@ import { Compass3D } from "@/components/compass-3d";
 import { PageNavBar } from "@/components/page-nav-bar";
 import type { CompassChartHandle } from "@/components/political-compass-chart";
 import { PoliticalCompassChart } from "@/components/political-compass-chart";
-import { getCompletedBadges, getPokeStatus, getPublicProfile, sendPoke } from "@/lib/api";
+import { getPokeStatus, getPublicProfile, sendPoke } from "@/lib/api";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
 import { ArrowLeft, Check, Copy, Download, GraduationCap, Lock, Share2, Zap } from "lucide-react";
@@ -46,11 +46,7 @@ export default function ProfilePage() {
       try {
         const data = await getPublicProfile(userId);
         setProfile(data);
-        // Load completed badges
-        try {
-          const b = await getCompletedBadges(userId);
-          setBadges(b);
-        } catch { /* no badges */ }
+
         // Load poke status if logged in and not own profile
         if (currentUser && currentUser.id !== userId) {
           try {
