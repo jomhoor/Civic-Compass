@@ -30,7 +30,6 @@ export default async function OGImage({
 
   let titleFa = "";
   let titleEn = "";
-  let icon = "📜";
   let cardCount = 0;
   let description = "";
 
@@ -42,7 +41,6 @@ export default async function OGImage({
       const data = await res.json();
       titleFa = data.titleFa ?? "";
       titleEn = data.titleEn ?? "";
-      icon = data.icon ?? "📜";
       cardCount = data.cards?.length ?? 0;
       description = data.description ?? "";
     }
@@ -95,16 +93,25 @@ export default async function OGImage({
         {/* Icon */}
         <div
           style={{
-            fontSize: "80px",
-            marginBottom: "20px",
+            width: "80px",
+            height: "80px",
+            borderRadius: "20px",
+            background: "rgba(14,187,144,0.2)",
+            border: "2px solid rgba(14,187,144,0.4)",
             display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "20px",
+            fontSize: "32px",
+            color: "#0EBB90",
+            fontWeight: 700,
           }}
         >
-          {icon}
+          {"CC"}
         </div>
 
         {/* Persian title */}
-        {titleFa && (
+        {titleFa ? (
           <div
             style={{
               fontSize: "48px",
@@ -118,10 +125,10 @@ export default async function OGImage({
           >
             {titleFa}
           </div>
-        )}
+        ) : null}
 
         {/* English title */}
-        {titleEn && (
+        {titleEn ? (
           <div
             style={{
               fontSize: "28px",
@@ -134,10 +141,10 @@ export default async function OGImage({
           >
             {titleEn}
           </div>
-        )}
+        ) : null}
 
         {/* Description */}
-        {description && (
+        {description ? (
           <div
             style={{
               fontSize: "20px",
@@ -151,7 +158,7 @@ export default async function OGImage({
           >
             {description}
           </div>
-        )}
+        ) : null}
 
         {/* Card count badge */}
         <div
@@ -167,7 +174,7 @@ export default async function OGImage({
           }}
         >
           <div style={{ fontSize: "18px", color: "#0EBB90", fontWeight: 600, display: "flex" }}>
-            {cardCount} cards
+            {`${cardCount} cards`}
           </div>
         </div>
 
@@ -189,7 +196,7 @@ export default async function OGImage({
               display: "flex",
             }}
           >
-            🧭 Civic Compass — Learn & Earn
+            {"Civic Compass - Learn & Earn"}
           </div>
         </div>
       </div>
