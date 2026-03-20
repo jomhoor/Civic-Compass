@@ -9,6 +9,8 @@ interface Card {
   id: string;
   front: string;
   back: string;
+  frontEn?: string | null;
+  backEn?: string | null;
   type: string;
   articleRef?: string | null;
   difficulty: string;
@@ -37,6 +39,7 @@ export function FlashcardReview({
   const language = useAppStore((s) => s.language);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [buttonsEnabled, setButtonsEnabled] = useState(false);
   const [reviewStartTime, setReviewStartTime] = useState(Date.now());
   const [localMastered, setLocalMastered] = useState<Set<string>>(new Set(masteredCardIds));
   const [saving, setSaving] = useState(false);
@@ -49,7 +52,18 @@ export function FlashcardReview({
   useEffect(() => {
     setReviewStartTime(Date.now());
     setShowAnswer(false);
+    setButtonsEnabled(false);
   }, [currentIndex]);
+
+  // Enable rating buttons after 3 seconds of showing the answer
+  useEffect(() => {
+    if (!showAnswer) {
+      setButtonsEnabled(false);
+      return;
+    }
+    const timer = setTimeout(() => setButtonsEnabled(true), 3000);
+    return () => clearTimeout(timer);
+  }, [showAnswer]);
 
   const handleRating = useCallback(
     async (status: string) => {
@@ -155,9 +169,9 @@ export function FlashcardReview({
         <div className="flex-1 flex items-center justify-center">
           <p
             className="text-base sm:text-lg font-medium text-center leading-relaxed"
-            style={{ color: "var(--text-primary)", direction: "rtl" }}
+            style={{ color: "var(--text-primary)", direction: language === "fa" ? "rtl" : "ltr" }}
           >
-            {currentCard.front}
+            {language === "en" && currentCard.frontEn ? currentCard.frontEn : currentCard.front}
           </p>
         </div>
 
@@ -165,40 +179,55 @@ export function FlashcardReview({
         {showAnswer ? (
           <div
             className="mt-6 pt-4 border-t"
-            style={{ borderColor: "var(--border)", direction: "rtl" }}
+            style={{ borderColor: "var(--border)", direction: language === "fa" ? "rtl" : "ltr" }}
           >
             <p
               className="text-sm sm:text-base leading-relaxed mb-6"
               style={{ color: "var(--text-secondary)" }}
             >
-              {currentCard.back}
+              {language === "en" && currentCard.backEn ? currentCard.backEn : currentCard.back}
             </p>
 
             {/* Rating buttons */}
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => handleRating("SEEN")}
-                disabled={saving}
+                disabled={saving || !buttonsEnabled}
                 className="py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all"
-                style={{ background: "rgba(239,68,68,0.15)", color: "var(--error)" }}
+                style={{
+                  background: "rgba(239,68,68,0.15)",
+                  color: "var(--error)",
+                  opacity: buttonsEnabled ? 1 : 0.4,
+                  cursor: buttonsEnabled ? "pointer" : "not-allowed",
+                }}
               >
-                ❌ {t("flashcard_didnt_know", language)}
+                {t("flashcard_didnt_know", language)}
               </button>
               <button
                 onClick={() => handleRating("LEARNING")}
-                disabled={saving}
+                disabled={saving || !buttonsEnabled}
                 className="py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all"
-                style={{ background: "rgba(245,158,11,0.15)", color: "var(--warning, #f59e0b)" }}
+                style={{
+                  background: "rgba(245,158,11,0.15)",
+                  color: "var(--warning, #f59e0b)",
+                  opacity: buttonsEnabled ? 1 : 0.4,
+                  cursor: buttonsEnabled ? "pointer" : "not-allowed",
+                }}
               >
-                🔶 {t("flashcard_almost", language)}
+                {t("flashcard_almost", language)}
               </button>
               <button
                 onClick={() => handleRating("MASTERED")}
-                disabled={saving}
+                disabled={saving || !buttonsEnabled}
                 className="py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all"
-                style={{ background: "rgba(34,197,94,0.15)", color: "var(--success, #22c55e)" }}
+                style={{
+                  background: "rgba(34,197,94,0.15)",
+                  color: "var(--success, #22c55e)",
+                  opacity: buttonsEnabled ? 1 : 0.4,
+                  cursor: buttonsEnabled ? "pointer" : "not-allowed",
+                }}
               >
-                ✅ {t("flashcard_knew_it", language)}
+                {t("flashcard_knew_it", language)}
               </button>
             </div>
           </div>

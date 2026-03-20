@@ -15,7 +15,7 @@ interface DeckData {
   description?: string;
   icon: string;
   sourceUrl?: string;
-  cards: { id: string; front: string; back: string; articleRef?: string; difficulty: string; order: number }[];
+  cards: { id: string; front: string; back: string; frontEn?: string | null; backEn?: string | null; articleRef?: string; difficulty: string; order: number }[];
 }
 
 export default function LearnDeckPage({ params }: { params: Promise<{ code: string }> }) {
@@ -147,13 +147,13 @@ export default function LearnDeckPage({ params }: { params: Promise<{ code: stri
                 })
               }
             >
-              <p className="text-sm font-medium" style={{ color: "var(--text-primary)", direction: "rtl" }}>
-                {card.front}
+              <p className="text-sm font-medium" style={{ color: "var(--text-primary)", direction: language === "fa" ? "rtl" : "ltr" }}>
+                {language === "en" && card.frontEn ? card.frontEn : card.front}
               </p>
               {isFlipped && (
                 <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--border-color)" }}>
-                  <p className="text-sm" style={{ color: "var(--text-secondary)", direction: "rtl" }}>
-                    {card.back}
+                  <p className="text-sm" style={{ color: "var(--text-secondary)", direction: language === "fa" ? "rtl" : "ltr" }}>
+                    {language === "en" && card.backEn ? card.backEn : card.back}
                   </p>
                   {card.articleRef && (
                     <a
