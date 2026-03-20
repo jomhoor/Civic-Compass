@@ -106,7 +106,7 @@ export default async function OGImage({
           {"CC"}
         </div>
 
-        {/* Persian title */}
+        {/* Persian title — use Unicode RLE to force RTL since Satori ignores CSS direction */}
         {titleFa.length > 0 ? (
           <div
             style={{
@@ -116,10 +116,11 @@ export default async function OGImage({
               textAlign: "center",
               marginBottom: "8px",
               display: "flex",
-              direction: "rtl",
+              width: "100%",
+              justifyContent: "center",
             }}
           >
-            {titleFa}
+            {`\u202B${titleFa}\u202C`}
           </div>
         ) : null}
 
