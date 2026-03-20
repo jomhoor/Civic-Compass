@@ -2,7 +2,7 @@
 
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
-import { Info, Lock, Trophy, Wallet } from "lucide-react";
+import { Check, Info, Lock, Share2, Trophy, Wallet } from "lucide-react";
 import { useState } from "react";
 
 interface FlashcardDeck {
@@ -27,10 +27,28 @@ export function BadgeCard({ deck, onStart }: BadgeCardProps) {
   const language = useAppStore((s) => s.language);
   const isGuest = useAppStore((s) => s.isGuest);
   const [showInfo, setShowInfo] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const isCompleted = deck.completedCards >= deck.totalCards && deck.totalCards > 0;
   const hasStarted = deck.completedCards > 0;
   const progress = deck.totalCards > 0 ? (deck.completedCards / deck.totalCards) * 100 : 0;
+
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/learn/${deck.code}`;
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: deck.titleFa || deck.titleEn, url: shareUrl });
+        return;
+      } catch {
+        // fallback to clipboard
+      }
+    }
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div
@@ -40,18 +58,28 @@ export function BadgeCard({ deck, onStart }: BadgeCardProps) {
         border: isCompleted ? "1px solid var(--accent)" : undefined,
       }}
     >
-      {/* Info tooltip button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowInfo(!showInfo);
-        }}
-        className="absolute top-2 right-2 p-1 rounded-full transition-colors"
-        style={{ color: "var(--text-muted)" }}
-        aria-label="Info"
-      >
-        <Info size={16} />
-      </button>
+      {/* Info & Share buttons */}
+      <div className="absolute top-2 right-2 flex items-center gap-1">
+        <button
+          onClick={handleShare}
+          className="p-1 rounded-full transition-colors"
+          style={{ color: copied ? "var(--accent-primary)" : "var(--text-muted)" }}
+          aria-label={t("flashcard_share", language)}
+        >
+          {copied ? <Check size={14} /> : <Share2 size={14} />}
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowInfo(!showInfo);
+          }}
+          className="p-1 rounded-full transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          aria-label="Info"
+        >
+          <Info size={16} />
+        </button>
+      </div>
 
       {/* Info tooltip overlay */}
       {showInfo && (
