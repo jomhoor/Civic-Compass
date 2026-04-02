@@ -1,5 +1,11 @@
 "use client";
 
+// Polyfill: Coinbase wallet SDK (via RainbowKit) calls performance.clearMarks()
+// without checking if it exists, causing "mgt.clearMarks is not a function".
+if (typeof window !== "undefined" && window.performance && !window.performance.clearMarks) {
+  window.performance.clearMarks = () => {};
+}
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
