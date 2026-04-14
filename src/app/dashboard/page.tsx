@@ -2643,10 +2643,10 @@ function DashboardContent() {
           </div>
 
           {/* Member since */}
-          {user?.createdAt && (
+          {(user as Record<string, unknown>)?.createdAt && (
             <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
               {t("profile_member_since", language)}{" "}
-              {new Date(user.createdAt).toLocaleDateString(language === "fa" ? "fa-IR" : "en-US", {
+              {new Date((user as Record<string, unknown>).createdAt as string).toLocaleDateString(language === "fa" ? "fa-IR" : "en-US", {
                 year: "numeric",
                 month: "long",
               })}
