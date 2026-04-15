@@ -12,12 +12,20 @@ import { useAppStore } from "@/lib/store";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ExternalLink, HelpCircle, Loader2, Lock, UserCircle, Wallet, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { SiweMessage } from "siwe";
 import { useAccount, useDisconnect, useSignMessage, useSwitchChain } from "wagmi";
 import { polygon } from "wagmi/chains";
 
 export default function ConnectPage() {
+  return (
+    <Suspense>
+      <ConnectContent />
+    </Suspense>
+  );
+}
+
+function ConnectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
