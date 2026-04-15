@@ -3,6 +3,7 @@
 import type { LucideProps } from "lucide-react";
 import {
     BarChart3,
+    Brain,
     Compass,
     HelpCircle,
     Map,
@@ -18,6 +19,7 @@ const iconMap: Record<string, React.ComponentType<LucideProps>> = {
   Map,
   BarChart3,
   Target,
+  Brain,
 };
 
 interface QuestionnaireIconProps extends LucideProps {

@@ -13,6 +13,13 @@ const en = {
   axis_justice: "Justice",
   axis_technology: "Technology",
 
+  // Personality (Big Five)
+  axis_openness: "Openness",
+  axis_conscientiousness: "Conscientiousness",
+  axis_extraversion: "Extraversion",
+  axis_agreeableness: "Agreeableness",
+  axis_neuroticism: "Neuroticism",
+
   // Navigation
   tab_compass: "Compass",
   tab_session: "Questionnaires",
@@ -359,6 +366,13 @@ const fa: typeof en = {
   axis_environment: "محیط زیست",
   axis_justice: "عدالت",
   axis_technology: "فناوری",
+
+  // Personality (Big Five)
+  axis_openness: "گشودگی به تجربه",
+  axis_conscientiousness: "وظیفه‌شناسی",
+  axis_extraversion: "برون‌گرایی",
+  axis_agreeableness: "توافق‌پذیری",
+  axis_neuroticism: "روان‌رنجوری",
 
   // Navigation
   tab_compass: "قطب‌نما",
@@ -715,7 +729,8 @@ export function axisLabel(axisKey: string, lang: Language = "en"): string {
 }
 
 /** All axis keys */
-export const AXIS_KEYS = [
+/** Civic compass axes */
+export const CIVIC_AXIS_KEYS = [
   "economy",
   "governance",
   "civil_liberties",
@@ -724,4 +739,19 @@ export const AXIS_KEYS = [
   "environment",
   "justice",
   "technology",
+] as const;
+
+/** Big Five personality axes */
+export const PERSONALITY_AXIS_KEYS = [
+  "openness",
+  "conscientiousness",
+  "extraversion",
+  "agreeableness",
+  "neuroticism",
+] as const;
+
+/** All axis keys (civic + personality) */
+export const AXIS_KEYS = [
+  ...CIVIC_AXIS_KEYS,
+  ...PERSONALITY_AXIS_KEYS,
 ] as const;
