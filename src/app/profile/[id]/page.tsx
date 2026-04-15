@@ -298,7 +298,7 @@ export default function ProfilePage() {
         )}
 
         {/* Poke / Chat action */}
-        {currentUser && !isOwnProfile && (
+        {!isOwnProfile && (
           <div className="flex items-center justify-center gap-2">
             {pokeState?.mutual ? (
               <button
@@ -314,7 +314,13 @@ export default function ProfilePage() {
               </button>
             ) : (
               <button
-                onClick={handlePoke}
+                onClick={() => {
+                  if (!currentUser) {
+                    router.push("/connect?returnTo=" + encodeURIComponent(`/profile/${userId}`));
+                    return;
+                  }
+                  handlePoke();
+                }}
                 disabled={pokeState?.hasPoked || pokeSending || chatEnabling}
                 className="flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all disabled:opacity-50"
                 style={{

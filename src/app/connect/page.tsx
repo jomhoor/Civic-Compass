@@ -11,7 +11,7 @@ import {
 import { useAppStore } from "@/lib/store";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ExternalLink, HelpCircle, Loader2, Lock, UserCircle, Wallet, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { SiweMessage } from "siwe";
 import { useAccount, useDisconnect, useSignMessage, useSwitchChain } from "wagmi";
@@ -19,6 +19,8 @@ import { polygon } from "wagmi/chains";
 
 export default function ConnectPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const setAuth = useAppStore((s) => s.setAuth);
   const setGuestAuth = useAppStore((s) => s.setGuestAuth);
   const language = useAppStore((s) => s.language);
@@ -97,7 +99,7 @@ export default function ConnectPage() {
 
       // 6. Navigate — skip onboarding for returning users
       const hasOnboarded = useAppStore.getState().hasOnboarded;
-      router.push(hasOnboarded ? "/dashboard" : "/onboarding");
+      router.push(hasOnboarded ? (returnTo || "/dashboard") : "/onboarding");
     } catch (err: unknown) {
       console.error("SIWE failed:", err);
       const msg = err instanceof Error ? err.message : "Connection failed";
@@ -190,7 +192,7 @@ export default function ConnectPage() {
 
         // 6. Navigate
         const hasOnboarded = useAppStore.getState().hasOnboarded;
-        router.push(hasOnboarded ? "/dashboard" : "/onboarding");
+        router.push(hasOnboarded ? (returnTo || "/dashboard") : "/onboarding");
       } catch (err) {
         console.error("[JomhoorBridge] SIWE failed:", err);
         if (!cancelled) {
