@@ -497,4 +497,111 @@ export const questionsFa: Record<string, string> = {
     "مجازات سخت در کاهش جرم مؤثرتر از برنامه‌های بازپروری است.",
   "Governments should be able to access private communications to prevent crime and terrorism.":
     "دولت‌ها باید بتوانند برای جلوگیری از جرم و تروریسم به ارتباطات خصوصی دسترسی داشته باشند.",
+
+  // ── Big Five Personality (IPIP 50-item) ──
+  // ── Extraversion (1–10) ──
+  "I am the life of the party.":
+    "من جان مهمانی هستم.",
+  "I don't talk a lot.":
+    "زیاد حرف نمی‌زنم.",
+  "I feel comfortable around people.":
+    "در جمع احساس راحتی می‌کنم.",
+  "I keep in the background.":
+    "ترجیح می‌دهم در حاشیه بمانم.",
+  "I start conversations.":
+    "مکالمه را شروع می‌کنم.",
+  "I have little to say.":
+    "حرف زیادی برای گفتن ندارم.",
+  "I talk to a lot of different people at parties.":
+    "در مهمانی‌ها با آدم‌های مختلف صحبت می‌کنم.",
+  "I don't like to draw attention to myself.":
+    "دوست ندارم توجه دیگران را جلب کنم.",
+  "I don't mind being the center of attention.":
+    "از مرکز توجه بودن اذیت نمی‌شوم.",
+  "I am quiet around strangers.":
+    "در جمع غریبه‌ها ساکت هستم.",
+  // ── Agreeableness (11–20) ──
+  "I feel little concern for others.":
+    "نگرانی کمی برای دیگران دارم.",
+  "I am interested in people.":
+    "به آدم‌ها علاقه‌مندم.",
+  "I insult people.":
+    "به دیگران توهین می‌کنم.",
+  "I sympathize with others' feelings.":
+    "با احساسات دیگران همدردی می‌کنم.",
+  "I am not interested in other people's problems.":
+    "به مشکلات دیگران علاقه‌ای ندارم.",
+  "I have a soft heart.":
+    "دل نازکی دارم.",
+  "I am not really interested in others.":
+    "واقعاً به دیگران علاقه‌ای ندارم.",
+  "I take time out for others.":
+    "برای دیگران وقت می‌گذارم.",
+  "I feel others' emotions.":
+    "احساسات دیگران را درک می‌کنم.",
+  "I make people feel at ease.":
+    "باعث می‌شوم دیگران احساس راحتی کنند.",
+  // ── Conscientiousness (21–30) ──
+  "I am always prepared.":
+    "همیشه آماده هستم.",
+  "I leave my belongings around.":
+    "وسایلم را همه‌جا رها می‌کنم.",
+  "I pay attention to details.":
+    "به جزئیات توجه می‌کنم.",
+  "I make a mess of things.":
+    "کارها را خراب می‌کنم.",
+  "I get chores done right away.":
+    "کارهای خانه را فوراً انجام می‌دهم.",
+  "I often forget to put things back in their proper place.":
+    "اغلب فراموش می‌کنم وسایل را سر جایشان بگذارم.",
+  "I like order.":
+    "نظم را دوست دارم.",
+  "I shirk my duties.":
+    "از زیر مسئولیت‌هایم شانه خالی می‌کنم.",
+  "I follow a schedule.":
+    "طبق برنامه عمل می‌کنم.",
+  "I am exacting in my work.":
+    "در کارم دقیق و سخت‌گیر هستم.",
+  // ── Neuroticism (31–40) ──
+  "I get stressed out easily.":
+    "به‌راحتی استرس می‌گیرم.",
+  "I am relaxed most of the time.":
+    "بیشتر اوقات آرام و ریلکس هستم.",
+  "I worry about things.":
+    "نگران چیزهای مختلف می‌شوم.",
+  "I seldom feel blue.":
+    "به‌ندرت احساس غمگینی می‌کنم.",
+  "I am easily disturbed.":
+    "به‌راحتی آشفته می‌شوم.",
+  "I get upset easily.":
+    "به‌راحتی ناراحت می‌شوم.",
+  "I change my mood a lot.":
+    "حال و هوایم زیاد عوض می‌شود.",
+  "I have frequent mood swings.":
+    "نوسانات خلقی زیادی دارم.",
+  "I get irritated easily.":
+    "به‌راحتی عصبانی می‌شوم.",
+  "I often feel blue.":
+    "اغلب احساس غمگینی می‌کنم.",
+  // ── Openness (41–50) ──
+  "I have a rich vocabulary.":
+    "دایره لغاتم گسترده است.",
+  "I have difficulty understanding abstract ideas.":
+    "در فهم مفاهیم انتزاعی مشکل دارم.",
+  "I have a vivid imagination.":
+    "تخیل قوی دارم.",
+  "I am not interested in abstract ideas.":
+    "به ایده‌های انتزاعی علاقه‌ای ندارم.",
+  "I have excellent ideas.":
+    "ایده‌های عالی دارم.",
+  "I do not have a good imagination.":
+    "قوه تخیل خوبی ندارم.",
+  "I am quick to understand things.":
+    "مطالب را سریع درک می‌کنم.",
+  "I use difficult words.":
+    "از کلمات دشوار استفاده می‌کنم.",
+  "I spend time reflecting on things.":
+    "وقتم را صرف تأمل و تفکر می‌کنم.",
+  "I am full of ideas.":
+    "سرشار از ایده هستم.",
 };
