@@ -55,12 +55,14 @@ import {
     isChatReady,
 } from "@/lib/chat-crypto";
 import { AXIS_KEYS, axisLabel, t } from "@/lib/i18n";
+import { isInsideJomhoor, signMessageViaBridge } from "@/lib/jomhoor-bridge";
 import { useAppStore } from "@/lib/store";
 
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ArrowDownRight, ArrowLeft, ArrowUpRight, BarChart3, BookOpen, Check, CircleCheckBig, Clock, Copy, Download, ExternalLink, Eye, EyeOff, GitCompare, GraduationCap, Link, Loader2, Lock, MessageCircle, MessageSquare, Minus, Puzzle, RotateCcw, Scan, Send, Share2, Shield, Swords, Trophy, User, UserPlus, Users, Wallet, X, Zap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useSignMessage } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import { BadgeCard } from "@/components/badge-card";
 import { FlashcardReview } from "@/components/flashcard-review";
 
@@ -241,9 +243,13 @@ function DashboardContent() {
   const [questionnaireProgress, setQuestionnaireProgress] = useState<QuestionnaireProgress[]>([]);
 
   // Chat state
+  const { isConnected: walletConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { signMessageAsync } = useSignMessage();
   const [chatReady, setChatReady] = useState(isChatReady());
   const [chatSigning, setChatSigning] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [chatPendingAfterConnect, setChatPendingAfterConnect] = useState(false);
   const [chatThreads, setChatThreads] = useState<{
     userId: string;
     displayName: string | null;
@@ -351,9 +357,25 @@ function DashboardContent() {
    *  Usually already done at connect time; this is the fallback. */
   const enableChat = useCallback(async () => {
     if (chatSigning || chatReady) return;
+
+    // wagmi uses noopStorage, so after page refresh the connector is gone.
+    // Re-open RainbowKit modal so the user can reconnect their wallet.
+    if (!isInsideJomhoor() && !walletConnected) {
+      setChatPendingAfterConnect(true);
+      openConnectModal?.();
+      return;
+    }
+
     setChatSigning(true);
+    setChatError(null);
     try {
-      const sig = await signMessageAsync({ message: getChatSignMessage() });
+      // Use Jomhoor bridge signing if inside the native app, otherwise wagmi
+      let sig: string;
+      if (isInsideJomhoor()) {
+        sig = await signMessageViaBridge(getChatSignMessage());
+      } else {
+        sig = await signMessageAsync({ message: getChatSignMessage() });
+      }
       await deriveChatKeyPair(sig);
       // Upload public key to server
       const pubB64 = getPublicKeyBase64();
@@ -366,10 +388,24 @@ function DashboardContent() {
       setChatThreads(threads ?? []);
     } catch (err) {
       console.error("Failed to enable chat:", err);
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("User rejected") || msg.includes("denied")) {
+        setChatError(language === "fa" ? "امضا لغو شد. لطفاً دوباره تلاش کنید." : "Signing cancelled. Please try again.");
+      } else {
+        setChatError(language === "fa" ? "خطا در فعال‌سازی گفتگو. لطفاً دوباره تلاش کنید." : "Failed to enable chat. Please try again.");
+      }
     } finally {
       setChatSigning(false);
     }
-  }, [chatSigning, chatReady, signMessageAsync]);
+  }, [chatSigning, chatReady, signMessageAsync, language, walletConnected, openConnectModal]);
+
+  // After wallet reconnects, auto-trigger chat enablement
+  useEffect(() => {
+    if (chatPendingAfterConnect && walletConnected && !chatReady && !chatSigning) {
+      setChatPendingAfterConnect(false);
+      enableChat();
+    }
+  }, [chatPendingAfterConnect, walletConnected, chatReady, chatSigning, enableChat]);
 
   /** Load a conversation with a user and decrypt messages */
   const loadConversation = useCallback(async (otherUserId: string) => {
@@ -1968,6 +2004,9 @@ function DashboardContent() {
                   </>
                 )}
               </button>
+              {chatError && (
+                <p className="text-xs mt-2" style={{ color: "var(--error, #ef4444)" }}>{chatError}</p>
+              )}
             </div>
           ) : activeChatUser ? (
             /* Conversation view */
