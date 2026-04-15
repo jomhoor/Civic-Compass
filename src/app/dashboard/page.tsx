@@ -273,6 +273,7 @@ function DashboardContent() {
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [pendingChatUserId, setPendingChatUserId] = useState<string | null>(null);
+  const [pendingPokeSend, setPendingPokeSend] = useState<string | null>(null);
 
   // Flashcard / Learn state
   const [flashcardDecks, setFlashcardDecks] = useState<any[]>([]);
@@ -418,6 +419,28 @@ function DashboardContent() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatReady, pendingChatUserId]);
+
+  // Once chat is ready and there's a pending poke, send it
+  useEffect(() => {
+    if (chatReady && pendingPokeSend) {
+      const targetId = pendingPokeSend;
+      setPendingPokeSend(null);
+      (async () => {
+        try {
+          const result = await sendPoke(targetId);
+          const updated = await getReceivedPokes();
+          setReceivedPokes(updated ?? []);
+          if (result.mutual) {
+            handleTabChange("chat");
+            loadConversation(targetId);
+          }
+        } catch (err) {
+          console.error("Failed to poke back:", err);
+        }
+      })();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatReady, pendingPokeSend]);
 
   /** Load a conversation with a user and decrypt messages */
   const loadConversation = useCallback(async (otherUserId: string) => {
@@ -1551,19 +1574,22 @@ function DashboardContent() {
                           <button
                             onClick={async () => {
                               try {
+                                // Ensure chat is enabled before poking
+                                if (!chatReady && !chatSigning) {
+                                  setPendingChatUserId(poke.senderId);
+                                  enableChat();
+                                  // The poke will be sent after chat is ready (see pendingPokeSend effect)
+                                  setPendingPokeSend(poke.senderId);
+                                  return;
+                                }
                                 const result = await sendPoke(poke.senderId);
                                 // Refresh pokes
                                 const updated = await getReceivedPokes();
                                 setReceivedPokes(updated ?? []);
-                                // If mutual, auto-enable chat and open conversation
+                                // If mutual, open conversation
                                 if (result.mutual) {
-                                  if (!chatReady) {
-                                    setPendingChatUserId(poke.senderId);
-                                    enableChat();
-                                  } else {
-                                    handleTabChange("chat");
-                                    loadConversation(poke.senderId);
-                                  }
+                                  handleTabChange("chat");
+                                  loadConversation(poke.senderId);
                                 }
                               } catch (err) {
                                 console.error("Failed to poke back:", err);

@@ -5,12 +5,15 @@ import { Compass3D } from "@/components/compass-3d";
 import { PageNavBar } from "@/components/page-nav-bar";
 import type { CompassChartHandle } from "@/components/political-compass-chart";
 import { PoliticalCompassChart } from "@/components/political-compass-chart";
-import { getPokeStatus, getPublicProfile, sendPoke } from "@/lib/api";
+import { getPokeStatus, getPublicProfile, sendPoke, setChatPublicKey } from "@/lib/api";
+import { deriveChatKeyPair, getChatSignMessage, getPublicKeyBase64 } from "@/lib/chat-crypto";
 import { t } from "@/lib/i18n";
+import { isInsideJomhoor, signMessageViaBridge } from "@/lib/jomhoor-bridge";
 import { useAppStore } from "@/lib/store";
-import { ArrowLeft, Check, Copy, Download, GraduationCap, Lock, Share2, Zap } from "lucide-react";
+import { ArrowLeft, Check, Copy, Download, GraduationCap, Lock, Loader2, Share2, Zap } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAccount, useSignMessage } from "wagmi";
 
 interface ProfileData {
   id: string;
@@ -40,6 +43,9 @@ export default function ProfilePage() {
   const compass3DRef = useRef<Compass3DHandle>(null);
   const currentUser = useAppStore((s) => s.user);
   const isOwnProfile = currentUser?.id === userId;
+  const { isConnected: walletConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const [chatEnabling, setChatEnabling] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -101,7 +107,34 @@ export default function ProfilePage() {
   }, [userId]);
 
   const handlePoke = useCallback(async () => {
-    if (!currentUser || pokeSending) return;
+    if (!currentUser || pokeSending || chatEnabling) return;
+
+    // Ensure chat is enabled before allowing poke
+    if (!getPublicKeyBase64()) {
+      setChatEnabling(true);
+      try {
+        let sig: string;
+        if (isInsideJomhoor()) {
+          sig = await signMessageViaBridge(getChatSignMessage());
+        } else if (walletConnected) {
+          sig = await signMessageAsync({ message: getChatSignMessage() });
+        } else {
+          // No wallet — redirect to dashboard connect flow
+          setChatEnabling(false);
+          return;
+        }
+        await deriveChatKeyPair(sig);
+        const pubB64 = getPublicKeyBase64();
+        if (pubB64) await setChatPublicKey(pubB64);
+      } catch (err) {
+        console.error("Failed to enable chat:", err);
+        setChatEnabling(false);
+        return;
+      } finally {
+        setChatEnabling(false);
+      }
+    }
+
     setPokeSending(true);
     try {
       const result = await sendPoke(userId);
@@ -111,7 +144,7 @@ export default function ProfilePage() {
     } finally {
       setPokeSending(false);
     }
-  }, [currentUser, userId, pokeSending, pokeState]);
+  }, [currentUser, userId, pokeSending, chatEnabling, pokeState, walletConnected, signMessageAsync]);
 
   if (loading) {
     return (
@@ -282,7 +315,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 onClick={handlePoke}
-                disabled={pokeState?.hasPoked || pokeSending}
+                disabled={pokeState?.hasPoked || pokeSending || chatEnabling}
                 className="flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all disabled:opacity-50"
                 style={{
                   background: pokeState?.hasPoked ? "var(--component-primary)" : "var(--accent-gradient)",
@@ -291,11 +324,13 @@ export default function ProfilePage() {
                 }}
               >
                 <Zap size={16} strokeWidth={1.5} />
-                {pokeSending
-                  ? t("loading", language) + "..."
-                  : pokeState?.hasPoked
-                    ? t("poke_sent", language)
-                    : t("poke_user", language)}
+                {chatEnabling
+                  ? t("chat_signing", language)
+                  : pokeSending
+                    ? t("loading", language) + "..."
+                    : pokeState?.hasPoked
+                      ? t("poke_sent", language)
+                      : t("poke_user", language)}
               </button>
             )}
           </div>
