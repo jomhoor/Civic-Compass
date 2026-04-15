@@ -10,7 +10,7 @@ const TAU = Math.PI * 2;
 const FOV = 600;
 const AXIS_OVERSHOOT = 1.15;
 
-const AXIS_KEYS = [
+const ALL_AXIS_KEYS = [
   "economy",
   "governance",
   "civil_liberties",
@@ -19,9 +19,14 @@ const AXIS_KEYS = [
   "environment",
   "justice",
   "technology",
+  "openness",
+  "conscientiousness",
+  "extraversion",
+  "agreeableness",
+  "neuroticism",
 ];
 
-const AXIS_LABELS: Record<string, string> = {
+const ALL_AXIS_LABELS: Record<string, string> = {
   economy: "Economy",
   governance: "Governance",
   civil_liberties: "Civil Liberties",
@@ -30,18 +35,28 @@ const AXIS_LABELS: Record<string, string> = {
   environment: "Environment",
   justice: "Justice",
   technology: "Technology",
+  openness: "Openness",
+  conscientiousness: "Conscientiousness",
+  extraversion: "Extraversion",
+  agreeableness: "Agreeableness",
+  neuroticism: "Neuroticism",
 };
 
-const AXIS_COLORS = [
-  "#0EBB90",
-  "#8CDAF5",
-  "#FEEB34",
-  "#E87461",
-  "#A78BFA",
-  "#F59E0B",
-  "#34D399",
-  "#60A5FA",
-];
+const ALL_AXIS_COLORS: Record<string, string> = {
+  economy: "#0EBB90",
+  governance: "#8CDAF5",
+  civil_liberties: "#FEEB34",
+  society: "#E87461",
+  diplomacy: "#A78BFA",
+  environment: "#F59E0B",
+  justice: "#34D399",
+  technology: "#60A5FA",
+  openness: "#FF6B9D",
+  conscientiousness: "#22D3EE",
+  extraversion: "#C084FC",
+  agreeableness: "#FB923C",
+  neuroticism: "#F43F5E",
+};
 
 const API_BASE =
   process.env.SERVER_API_URL ??
@@ -140,6 +155,7 @@ export default async function OGImage({
 
   // Fetch compass data from backend
   let dimensions: Record<string, number> = {};
+  let confidence: Record<string, number> = {};
   let displayName: string | null = null;
   let wallet = "";
   let badges: { code: string; icon: string; titleEn: string }[] = [];
@@ -151,6 +167,7 @@ export default async function OGImage({
     if (res.ok) {
       const data = await res.json();
       dimensions = data.dimensions ?? {};
+      confidence = data.confidence ?? {};
       displayName = data.displayName;
       wallet = data.wallet ?? "";
     }
@@ -169,6 +186,11 @@ export default async function OGImage({
   } catch {
     // No badges
   }
+
+  // Only include axes with data (grows from 8 civic to 13 when personality is answered)
+  const withData = ALL_AXIS_KEYS.filter((k) => (confidence[k] ?? 0) > 0);
+  const AXIS_KEYS = withData.length > 0 ? withData : ALL_AXIS_KEYS;
+  const AXIS_COLORS = AXIS_KEYS.map((k) => ALL_AXIS_COLORS[k]);
 
   // Normalize dimension values from [-1, 1] to [0, 1]
   const values = AXIS_KEYS.map((k) => ((dimensions[k] ?? 0) + 1) / 2);
@@ -379,7 +401,7 @@ export default async function OGImage({
                   display: "flex",
                 }}
               >
-                {AXIS_LABELS[key]}
+                {ALL_AXIS_LABELS[key]}
               </div>
             );
           })}

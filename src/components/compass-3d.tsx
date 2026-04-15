@@ -3,7 +3,7 @@
 import { axisLabel } from "@/lib/i18n";
 import { generateProfileQR, QR_SIZE } from "@/lib/qr";
 import { useAppStore } from "@/lib/store";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 
 /* ── Constants ── */
 const TAU = Math.PI * 2;
@@ -11,7 +11,7 @@ const ROTATE_SPEED = 0.003;
 const FOV = 600;
 const AXIS_OVERSHOOT = 1.15;
 
-const AXIS_KEYS = [
+const ALL_AXIS_KEYS = [
   "economy",
   "governance",
   "civil_liberties",
@@ -27,21 +27,21 @@ const AXIS_KEYS = [
   "neuroticism",
 ];
 
-const AXIS_COLORS = [
-  "#0EBB90",   // economy
-  "#8CDAF5",   // governance
-  "#FEEB34",   // civil_liberties
-  "#E87461",   // society
-  "#A78BFA",   // diplomacy
-  "#F59E0B",   // environment
-  "#34D399",   // justice
-  "#60A5FA",   // technology
-  "#FF6B9D",   // openness
-  "#22D3EE",   // conscientiousness
-  "#C084FC",   // extraversion
-  "#FB923C",   // agreeableness
-  "#F43F5E",   // neuroticism
-];
+const ALL_AXIS_COLORS: Record<string, string> = {
+  economy: "#0EBB90",
+  governance: "#8CDAF5",
+  civil_liberties: "#FEEB34",
+  society: "#E87461",
+  diplomacy: "#A78BFA",
+  environment: "#F59E0B",
+  justice: "#34D399",
+  technology: "#60A5FA",
+  openness: "#FF6B9D",
+  conscientiousness: "#22D3EE",
+  extraversion: "#C084FC",
+  agreeableness: "#FB923C",
+  neuroticism: "#F43F5E",
+};
 
 /* ── Math helpers ── */
 function hexRGBA(hex: string, a: number) {
@@ -137,9 +137,17 @@ export const Compass3D = forwardRef<Compass3DHandle, Compass3DProps>(
     return () => { cancelled = true; };
   }, [userId, isDark]);
 
-  // Normalize [-1,1] → [0,1]
-  const values = AXIS_KEYS.map((k) => ((dimensions[k] ?? 0) + 1) / 2);
-  const axes3D = fibSphere(AXIS_KEYS.length);
+  // Only include axes that have at least one response
+  const activeKeys = useMemo(() => {
+    const withData = ALL_AXIS_KEYS.filter((k) => (confidence[k] ?? 0) > 0);
+    return withData.length > 0 ? withData : ALL_AXIS_KEYS;
+  }, [confidence]);
+  const AXIS_COLORS = useMemo(
+    () => activeKeys.map((k) => ALL_AXIS_COLORS[k]),
+    [activeKeys],
+  );
+  const values = activeKeys.map((k) => ((dimensions[k] ?? 0) + 1) / 2);
+  const axes3D = fibSphere(activeKeys.length);
   const valuesRef = useRef(values);
   valuesRef.current = values;
 
@@ -304,8 +312,8 @@ export const Compass3D = forwardRef<Compass3DHandle, Compass3DProps>(
       const labX = le.x + (ldx / lLen) * 18;
       const labY = le.y + (ldy / lLen) * 18;
 
-      const confCount = confidence[AXIS_KEYS[lIdx]] ?? 0;
-      const label = axisLabel(AXIS_KEYS[lIdx], language);
+      const confCount = confidence[activeKeys[lIdx]] ?? 0;
+      const label = axisLabel(activeKeys[lIdx], language);
       const lines = label.split("\n");
 
       ctx.fillStyle = isLight
@@ -349,7 +357,7 @@ export const Compass3D = forwardRef<Compass3DHandle, Compass3DProps>(
     }
 
     raf.current = requestAnimationFrame(draw);
-  }, [axes3D, confidence, language, qrImg]);
+  }, [activeKeys, AXIS_COLORS, axes3D, confidence, language, qrImg]);
 
   useEffect(() => {
     raf.current = requestAnimationFrame(draw);
