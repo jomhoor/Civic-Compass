@@ -27,7 +27,7 @@ export const questionsFa: Record<string, string> = {
 
   // ── Governance (11–20) ──
   "Direct democracy (citizens voting on every issue) is better than representative democracy.":
-    "دموکراسی مستقیم (رأی‌گیری شهروندان در هر موضوع) بهتر از دموکراسی نمایندگی است.",
+    "دموکراسی مستقیم (رای‌گیری شهروندان در هر موضوع) بهتر از دموکراسی نمایندگی است.",
   "A strong central leader can get more done than a slow democratic process.":
     "یک رهبر مرکزی قدرتمند بیشتر از فرآیند کُند دموکراتیک کار انجام می‌دهد.",
   "Power should be distributed to local communities rather than concentrated in a national government.":
@@ -45,7 +45,7 @@ export const questionsFa: Record<string, string> = {
   "Federal governments should have the power to override local laws when necessary.":
     "دولت‌های فدرال باید در صورت لزوم قدرت لغو قوانین محلی را داشته باشند.",
   "Blockchain-based voting could make elections more transparent and trustworthy.":
-    "رأی‌گیری مبتنی بر بلاکچین می‌تواند انتخابات را شفاف‌تر و قابل‌اعتمادتر کند.",
+    "رای‌گیری مبتنی بر بلاکچین می‌تواند انتخابات را شفاف‌تر و قابل‌اعتمادتر کند.",
 
   // ── Civil Liberties (21–30) ──
   "Freedom of speech should be absolute, with no exceptions for hate speech.":
@@ -187,7 +187,7 @@ export const questionsFa: Record<string, string> = {
   "The free market is the most efficient way to allocate resources.":
     "بازار آزاد کارآمدترین راه برای تخصیص منابع است.",
   "Citizens should directly vote on major policy issues.":
-    "شهروندان باید مستقیماً در مورد مسائل سیاست‌گذاری مهم رأی دهند.",
+    "شهروندان باید مستقیماً در مورد مسائل سیاست‌گذاری مهم رای دهند.",
   "Strong leadership is more important than checks and balances.":
     "رهبری قوی مهم‌تر از نظارت و تعادل قدرت است.",
   "Privacy is more important than national security.":
