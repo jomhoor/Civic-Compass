@@ -1,17 +1,10 @@
+import fs from "fs";
+import path from "path";
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Civic Compass — Your Multidimensional Voice";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-/* ── Font loader (Parastoo, fetched once at edge) ── */
-const parastooRegularPromise = fetch(
-  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-latin-400-normal.woff"
-).then((res) => res.arrayBuffer());
-const parastooBoldPromise = fetch(
-  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-latin-700-normal.woff"
-).then((res) => res.arrayBuffer());
 
 const AXES = [
   { key: "Economy", color: "#0EBB90", value: 0.7 },
@@ -64,13 +57,11 @@ function hexRGBA(hex: string, a: number) {
 }
 
 export default async function TwitterImage() {
-  let parastooRegular: ArrayBuffer | null = null;
-  let parastooBold: ArrayBuffer | null = null;
+  let nianRegular: Buffer | null = null;
+  let nianBold: Buffer | null = null;
   try {
-    [parastooRegular, parastooBold] = await Promise.all([
-      parastooRegularPromise,
-      parastooBoldPromise,
-    ]);
+    nianRegular = fs.readFileSync(path.join(process.cwd(), "public/fonts/Nian.ttf"));
+    nianBold = fs.readFileSync(path.join(process.cwd(), "public/fonts/Nian-Bold.ttf"));
   } catch {
     // Fallback to system font
   }
@@ -122,7 +113,7 @@ export default async function TwitterImage() {
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", background: "linear-gradient(135deg, #0a0a0f 0%, #121228 50%, #0d1117 100%)", fontFamily: "Parastoo, system-ui, sans-serif", position: "relative", overflow: "hidden" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "linear-gradient(135deg, #0a0a0f 0%, #121228 50%, #0d1117 100%)", fontFamily: "Nian, system-ui, sans-serif", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.05, backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)", backgroundSize: "40px 40px", display: "flex" }} />
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "840px", height: "100%", position: "relative" }}>
@@ -186,11 +177,11 @@ export default async function TwitterImage() {
     {
       ...size,
       fonts: [
-        ...(parastooRegular
-          ? [{ name: "Parastoo", data: parastooRegular, weight: 400 as const, style: "normal" as const }]
+        ...(nianRegular
+          ? [{ name: "Nian", data: nianRegular, weight: 400 as const, style: "normal" as const }]
           : []),
-        ...(parastooBold
-          ? [{ name: "Parastoo", data: parastooBold, weight: 700 as const, style: "normal" as const }]
+        ...(nianBold
+          ? [{ name: "Nian", data: nianBold, weight: 700 as const, style: "normal" as const }]
           : []),
       ],
     }

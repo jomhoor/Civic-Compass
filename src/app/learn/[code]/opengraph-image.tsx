@@ -1,6 +1,7 @@
+import fs from "fs";
+import path from "path";
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Civic Compass — Learn";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -34,13 +35,10 @@ export default async function OGImage({
     // Fallback
   }
 
-  // Load Parastoo font for Persian text
-  let fontData: ArrayBuffer | undefined;
+  // Load Nian font for Persian text
+  let fontData: Buffer | undefined;
   try {
-    const fontRes = await fetch(
-      "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-arabic-700-normal.woff"
-    );
-    if (fontRes.ok) fontData = await fontRes.arrayBuffer();
+    fontData = fs.readFileSync(path.join(process.cwd(), "public/fonts/Nian-Bold.ttf"));
   } catch {
     // Fallback without custom font
   }
@@ -56,7 +54,7 @@ export default async function OGImage({
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%)",
-          fontFamily: fontData ? "Parastoo" : "sans-serif",
+          fontFamily: fontData ? "Nian" : "sans-serif",
           position: "relative",
           overflow: "hidden",
         }}
@@ -199,7 +197,7 @@ export default async function OGImage({
       fonts: fontData
         ? [
             {
-              name: "Parastoo",
+              name: "Nian",
               data: fontData,
               weight: 700 as const,
               style: "normal" as const,

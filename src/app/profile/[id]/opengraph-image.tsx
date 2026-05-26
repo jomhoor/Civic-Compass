@@ -1,6 +1,7 @@
+import fs from "fs";
+import path from "path";
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Civic Compass Profile";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -133,10 +134,7 @@ function toPoliticalCompass(dims: Record<string, number>) {
   return { economic, social };
 }
 
-/* ── Font loader (Parastoo for Persian, fetched once at edge) ── */
-const parastooPromise = fetch(
-  "https://cdn.jsdelivr.net/npm/@fontsource/parastoo@5.2.3/files/parastoo-arabic-700-normal.woff"
-).then((res) => res.arrayBuffer());
+/* ── Font loader (Nian for Persian) ── */
 
 export default async function OGImage({
   params,
@@ -146,9 +144,9 @@ export default async function OGImage({
   const { id: userId } = await params;
 
   // Load Persian font
-  let parastooData: ArrayBuffer | null = null;
+  let parastooData: Buffer | null = null;
   try {
-    parastooData = await parastooPromise;
+    parastooData = fs.readFileSync(path.join(process.cwd(), "public/fonts/Nian-Bold.ttf"));
   } catch {
     // Fallback without Persian font
   }
@@ -276,7 +274,7 @@ export default async function OGImage({
           alignItems: "center",
           justifyContent: "center",
           background: "#111111",
-          fontFamily: '"Parastoo", "Helvetica", sans-serif',
+          fontFamily: '"Nian", "Helvetica", sans-serif',
         }}
       >
         {/* Left side — 3D Compass */}
@@ -463,7 +461,7 @@ export default async function OGImage({
               marginBottom: "8px",
               display: "flex",
               direction: titleIsRTL ? "rtl" : "ltr",
-              fontFamily: "Parastoo",
+              fontFamily: "Nian",
               width: "100%",
             }}
           >
@@ -629,7 +627,7 @@ export default async function OGImage({
         ...(parastooData
           ? [
               {
-                name: "Parastoo",
+                name: "Nian",
                 data: parastooData,
                 weight: 700 as const,
                 style: "normal" as const,
